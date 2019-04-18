@@ -34,5 +34,5 @@ It doesn't matter how you install these, but some suggestions are:
 * no affiliations to ImageMagick or Groovy
 
 ## License
-This project is licensed under the MIT License. See the [LICENSE.md](LICENSE.md) file for details.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
