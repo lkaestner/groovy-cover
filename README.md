@@ -12,6 +12,7 @@ All you have to do is:
 *Remarks:*
 1. GroovyCover is multi-threaded and scales with the host's core-count.
 2. The source-code is really small at less than 100 LLOC.
+3. You can directly change settings like the output-resolution, font-type or font-color in the script.
 
 ## Screenshots
 Side-by-side view of inputs and outputs:
