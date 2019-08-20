@@ -2,7 +2,7 @@
 // META
 appName    = 'GroovyCover'
 appDescr   = 'Creates Album-Covers using ImageMagick'
-appVersion = '1.1.0'
+appVersion = '1.1.1'
 appAuthor  = 'Lukas Kästner'
 appLicense = 'SPDX: MIT'
 
@@ -11,13 +11,13 @@ appLicense = 'SPDX: MIT'
 
 // grab dependencies
 @Grab(group='ch.qos.logback', module='logback-classic', version='1.2.3')
-@Grab(group='com.google.guava', module='guava', version='28.0-jre')
+@Grab(group='commons-io', module='commons-io', version='2.6')
 
 // import classes
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.Files
-import com.google.common.io.MoreFiles
+import org.apache.commons.io.FilenameUtils
 
 
 //=============================================================================
@@ -46,7 +46,6 @@ logger.info("Run this program with argument -h to view help and usage-informatio
 
 // read and parse CLI arguments, thus specifying the public API
 final cli = new groovy.cli.commons.CliBuilder()
-
 cli.h(longOpt:'help', type: boolean, 'display help and usage-instructions')
 cli.d(longOpt:'debug', type: boolean, 'increase logging-verbosity and disable parallel file-processing')
 cli.i(longOpt:'in-dir', convert: { Paths.get(it) }, defaultValue: 'in', 'relative or absolute path of the input-directory')
@@ -78,24 +77,24 @@ final allowedExtensions      = ['jpg', 'jpeg', 'png']
 // SCRIPT
 
 // if requested, enable debugging and print basic debugging information
-if (debug) logger.level=ch.qos.logback.classic.Level.DEBUG
+if (debug) { logger.level=ch.qos.logback.classic.Level.DEBUG }
 logger.debug("Debugging is enabled")
 logger.debug("Date: ${java.time.LocalDateTime.now()}")
 logger.debug("Runtime: Groovy ${GroovySystem.version} on JDK ${System.properties['java.version']}")
 
 // ensure that input and output directories exist
 logger.debug("Input directory: ${inDir.toAbsolutePath()}")
-Files.createDirectories(inDir);
+Files.createDirectories(inDir)
 logger.debug("Output directory: ${outDir.toAbsolutePath()}")
-Files.createDirectories(outDir);
+Files.createDirectories(outDir)
 
 // collect input files into a list (for logging and determining suitable degree of parallelization)
 logger.info('Determine list of input-files')
 final fileList = []
 inDir.eachFileRecurse(groovy.io.FileType.FILES) { currentFile ->
-	allowedExtensions.contains(MoreFiles.getFileExtension(currentFile)) && fileList << currentFile
+	if (allowedExtensions.contains(FilenameUtils.getExtension(currentFile.toString()))) { fileList << currentFile }
 }
-fileList.empty && logger.warn('No input files found.')
+if (fileList.empty) { logger.warn('No input files found.') }
 
 // process input-files in parallel
 numberOfThreads = debug ? 1 : Math.min(fileList.size(), Runtime.getRuntime().availableProcessors())
@@ -106,14 +105,15 @@ groovyx.gpars.GParsPool.withPool(numberOfThreads) {
 		logger.info("${position}: ${inFile}")
 		
 		// determine file-name without extension
-		final cleanName = MoreFiles.getNameWithoutExtension(inFile)
+		final cleanName = FilenameUtils.getBaseName(inFile.toString())
+		
 		logger.debug("Clean File-Name: ${cleanName}")
 		
 		// determine file's relative path to the input-directory
-		final inFileRel = inDir.relativize(inFile);
+		final inFileRel = inDir.relativize(inFile)
 		
 		// determine output-file location, replicating the same relative path of the input-directory
-		final outFile = outDir.resolve(inFileRel);
+		final outFile = outDir.resolve(inFileRel)
 		logger.debug("Output File: ${outFile}")
 		
 		// prepare output directory
@@ -122,18 +122,25 @@ groovyx.gpars.GParsPool.withPool(numberOfThreads) {
 		
 		// build magick command
 		logger.debug('Building Magick Command')
-		final magickCommand = """
-		magick convert
-		-verbose
-		-gravity center
-		-resize ${outResolution}^>
-		-crop ${outResolution}x${outResolution}+0+0 -strip
-		-background none -font \"${textFont}\" -fill \"${textColor}\" -size ${outTextWidth}x${outTextHeight} caption:\"${cleanName}\"
-		\"${inFile}\" +swap -composite \"${outFile}\"
-		"""
+		final magickCommand = ""
+		.concat('magick convert')
+		.concat(' -verbose')
+		.concat(' -gravity center')
+		.concat(" -resize \"${outResolution}^>\"")
+		.concat(" -crop \"${outResolution}x${outResolution}+0+0\"")
+		.concat(' -strip')
+		.concat(' -background none')
+		.concat(" -font \"${textFont}\"")
+		.concat(" -fill \"${textColor}\"")
+		.concat(" -size \"${outTextWidth}x${outTextHeight}\"")
+		.concat(" caption:\"${cleanName}\"")
+		.concat(" \"${inFile}\"")
+		.concat(' +swap')
+		.concat(' -composite')
+		.concat(" \"${outFile}\"")
 		
 		// execute magick command
-		logger.debug("Executing Magick Command:\n${magickCommand}")
+		logger.debug("Executing Magick Command: ${magickCommand}")
 		final proc = magickCommand.execute()
 		proc.waitFor()
 		
@@ -142,9 +149,7 @@ groovyx.gpars.GParsPool.withPool(numberOfThreads) {
 		if (exitCode == 0) {
 			logger.debug("Successfully created output-file: ${outFile}")
 		} else {
-			logger.error("""ExitCode: ${proc.exitValue()}
-						 StdErr:   ${proc.err.text}
-						 StdOut:   ${proc.in.text}""")
+			logger.error("ExitCode=${proc.exitValue()} | StdErr: ${proc.err.text} | StdOut: ${proc.in.text}")
 		}
 	}
 }
