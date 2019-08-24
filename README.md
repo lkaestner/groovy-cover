@@ -13,6 +13,7 @@ All you have to do is:
 1. GroovyCover is multi-threaded and scales with the host's core-count.
 2. The source-code is really small at ca. 150 LLOC.
 3. You can customize the text-color, font-type and other aspects via CLI arguments. Call with -h to view usage-information.
+4. Tested with Groovy 2.5 and ImageMagick 7
 
 ## Screenshots
 Side-by-side view of inputs and outputs:
