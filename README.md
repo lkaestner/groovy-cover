@@ -13,7 +13,7 @@ All you have to do is:
 1. GroovyCover is multi-threaded and scales with the host's core-count.
 2. The source-code is really small at ca. 150 LLOC.
 3. You can customize the text-color, font-type and other aspects via CLI arguments. Call with -h to view usage-information.
-4. Tested with Groovy 2.5 and ImageMagick 7
+4. Tested with Groovy 2.5 and ImageMagick 7.
 
 ## Screenshots
 Side-by-side view of inputs and outputs:
@@ -25,11 +25,11 @@ Sample console-output:
 ![Screenshot 2](doc/groovy-cover-screenshot-2.png "Screenshot 2")
 
 ## Prerequisites
-GroovyCover uses [Groovy](http://groovy-lang.org) and [ImageMagick](https://www.imagemagick.org).
+GroovyCover uses [Groovy](http://groovy-lang.org) and [ImageMagick](https://www.imagemagick.org) - and requires both on the $PATH.
 
-It doesn't matter how you install these, but some suggestions are:
+It doesn't matter how you install these dependencies, but some suggestions are:
 * Windows: Get [Chocolatey](https://chocolatey.org) and run "choco install groovy imagemagick".
-* Ubuntu:  Run "sudo apt-get install groovy imagemagick".
+* Debian/Ubuntu: Run "sudo apt-get install groovy imagemagick".
 
 ## Authors & Affiliations
 * **Lukas Kästner** - *Initial work* - [lkaestner.com](https://lkaestner.com)
