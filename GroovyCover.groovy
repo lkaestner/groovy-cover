@@ -2,7 +2,7 @@
 // META
 appName    = 'GroovyCover'
 appDescr   = 'Creates Album-Covers using ImageMagick'
-appVersion = '1.2.0'
+appVersion = '1.2.1'
 appAuthor  = 'Lukas Kästner'
 appLicense = 'SPDX: MIT'
 
@@ -44,6 +44,7 @@ cli.with {
 	d  longOpt: 'debug', type: boolean, 'increase logging-verbosity and disable parallel file-processing'
 	i  longOpt: 'inDir', convert: { Paths.get(it) }, defaultValue: 'in', 'relative or absolute path of the input-directory'
 	o  longOpt: 'outDir', convert: { Paths.get(it) }, defaultValue: 'out', 'relative or absolute path of the output-directory'
+	s  longOpt: 'skipExisting', type: boolean, 'do not create cover if output-file already exists'
 	r  longOpt: 'outResolution', type: int, defaultValue: '1024', 'resolution of output image (longest edge)'
 	tf longOpt: 'textFont', type: String, defaultValue: 'Arial-Bold', 'name of the font, e.g. Arial-Bold'
 	tc longOpt: 'textColor', type: String, defaultValue: 'white', 'color of the font, e.g. white'
@@ -96,7 +97,10 @@ numberOfThreads = options.debug ? 1 : Math.min(fileList.size(), Runtime.getRunti
 logger.info("Processing ${fileList.size()} input-files using ${numberOfThreads} parallel threads.")
 groovyx.gpars.GParsPool.withPool(numberOfThreads) {
 	fileList.eachParallel { inFile ->
-		logger.info("[${fileList.indexOf(inFile)+1}/${fileList.size()}]: ${inFile}")
+	
+		// logging
+		final logString = "[${fileList.indexOf(inFile)+1}/${fileList.size()}]: ${inFile}"
+		logger.debugEnabled && logger.debug(logString)
 		
 		// determine file-name without extension (using regex)
 		final cleanName = inFile.fileName.toString().replaceFirst(~/\.[^\.]+$/, '')
@@ -111,7 +115,17 @@ groovyx.gpars.GParsPool.withPool(numberOfThreads) {
 		
 		// prepare output directory
 		Files.createDirectories(outFile.parent)
-		Files.deleteIfExists(outFile)
+		
+		// delete destination file or skip
+		if (options.skipExisting && Files.exists(outFile)) {
+			logger.debug("Skipping file: ${outFile}")
+			return
+		} else {
+			Files.deleteIfExists(outFile)
+		}
+		
+		// logging
+		logger.debugEnabled || logger.info(logString)
 		
 		// build magick command
 		logger.debug('Building Magick Command')
