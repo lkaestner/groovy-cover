@@ -2,7 +2,7 @@
 // META
 appName    = 'GroovyCover'
 appDescr   = 'Creates Album-Covers using ImageMagick'
-appVersion = '1.2.1'
+appVersion = '1.2.2'
 appAuthor  = 'Lukas Kästner'
 appLicense = 'SPDX: MIT'
 
@@ -53,6 +53,11 @@ cli.with {
 }
 final options = cli.parse(args)
 
+// abort if options could not be parsed
+if (!options) {
+	System.exit(1)
+}
+
 // if requested, display help-text and exit
 if (options.help) {
 	cli.usage()
@@ -70,10 +75,10 @@ final int textWidth  = options.outResolution * options.textWidthFactor
 // if requested, enable debugging and print basic debugging information
 if (options.debug) {
 	logger.level = ch.qos.logback.classic.Level.DEBUG
+	logger.debug("Debugging is enabled")
+	logger.debug("Date: ${java.time.LocalDateTime.now()}")
+	logger.debug("Runtime: Groovy ${GroovySystem.version} on JDK ${System.properties['java.version']}")
 }
-logger.debug("Debugging is enabled")
-logger.debug("Date: ${java.time.LocalDateTime.now()}")
-logger.debug("Runtime: Groovy ${GroovySystem.version} on JDK ${System.properties['java.version']}")
 
 // ensure that input and output directories exist
 logger.debug("Input directory: ${options.inDir.toAbsolutePath()}")
