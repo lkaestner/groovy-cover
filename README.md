@@ -24,12 +24,16 @@ Sample console-output:
 
 ![Screenshot 2](doc/groovy-cover-screenshot-2.png "Screenshot 2")
 
-## Prerequisites
+## Prerequisites & Compatibility
 GroovyCover uses [Groovy](http://groovy-lang.org) and [ImageMagick](https://www.imagemagick.org) - and requires both on the $PATH.
 
 It doesn't matter how you install these dependencies, but some suggestions are:
 * Windows: Get [Chocolatey](https://chocolatey.org) and run "choco install groovy imagemagick".
 * Debian/Ubuntu: Run "sudo apt-get install groovy imagemagick".
+
+GroovyCover was tested with:
+* Groovy 3.0 and 2.5 on Zulu 13 and 11
+* ImageMagick 7
 
 ## Authors & Affiliations
 * **Lukas Kästner** - *Initial work* - [lkaestner.com](https://lkaestner.com)
